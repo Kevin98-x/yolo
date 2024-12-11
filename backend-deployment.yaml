@@ -1,3 +1,5 @@
+#This is for the backend yaml file with port number and container name and image
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,7 +18,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: brianbwire/brian-yolo-backend:v1.0.0
+          image: kevin98x/kevin-yolo-backend:v1.0.0
           command: ["npm", "start"] 
           ports:
             - containerPort: 5000
