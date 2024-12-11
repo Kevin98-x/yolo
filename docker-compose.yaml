@@ -1,3 +1,5 @@
+#This is to make the container and run the service on ubuntu
+
 #This file builds the Docker images for a React/NodeJS application and runs it as microservices on Docker containers
 
 #To ensure successful execution, clone this entire repository and execute this file while in the root folder of the cloned repository
@@ -12,9 +14,9 @@ services:
 
   #Builds the frontend Docker image and creates the frontend microservice
   brian-yolo-client:
-    image: brianbwire/brian-yolo-client:v1.0.0
+    image: kevin98x/kevin-yolo-client:v1.0.0
     build: ./client
-    container_name: brian-yolo-client
+    container_name: kevin-yolo-client
     stdin_open: true
     tty: true
     ports:
@@ -26,9 +28,9 @@ services:
 
   #Builds the backend Docker image and creates the backend microservice
   brian-yolo-backend:
-    image: brianbwire/brian-yolo-backend:v1.0.0
+    image: kevin98x/kevin-yolo-backend:v1.0.0
     build: ./backend
-    container_name: brian-yolo-backend
+    container_name: kevin-yolo-backend
     stdin_open: true
     tty: true
     restart: always
