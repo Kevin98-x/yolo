@@ -22,7 +22,7 @@ services:
     ports:
       - "3000:3000"
     depends_on: 
-      - brian-yolo-backend
+      - kevin-yolo-backend
     networks:
       - app-net
 
