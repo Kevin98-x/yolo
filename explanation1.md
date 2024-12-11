@@ -1,5 +1,5 @@
 ## 1. Choice of Base Image
- The base image used to build the containers is `node:16-alpine3.16`. It is derived from the Alpine Linux distribution, making it lightweight and compact. 
+ The base image used to build the containers is `node:16-alpine3.16`. It comes from the Alpine Linux distribution, making it lightweight and compact. 
  Used 
  1. Client:`node:16-alpine3.16`
  2. Backend: `node:16-alpine3.16`
