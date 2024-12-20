@@ -1,5 +1,6 @@
-#This is for the backend yaml file with port number and container name and image
+# This file defines the Kubernetes deployment and service for the backend application
 
+# Kubernetes API version and resource type
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,10 +8,13 @@ metadata:
   labels:
     app: backend
 spec:
+  # Number of identical pods to run
   replicas: 2
+  # How to identify pods that this deployment manages
   selector:
     matchLabels:
       app: backend
+  # Template for creating pods
   template:
     metadata:
       labels:
@@ -18,29 +22,56 @@ spec:
     spec:
       containers:
         - name: backend
+          # Docker image to use for this container
           image: kevin98x/kevin-yolo-backend:v1.0.0
-          command: ["npm", "start"] 
+          # Command to run when container starts
+          command: ["npm", "start"]
+          # Environment variables for the container
+          env:
+            - name: MONGO_URL
+              value: "mongodb://app-ip-mongo:27017/mydatabase"
+            - name: NODE_ENV
+              value: "production"
+          # Port the container exposes
           ports:
             - containerPort: 5000
+          # Resource limits and requests
           resources:
             limits:
-              memory: "256Mi"
-              cpu: "500m"
+              memory: "256Mi"  # Maximum memory the container can use
+              cpu: "500m"      # Maximum CPU the container can use (500 millicores = 0.5 CPU)
             requests:
-              memory: "128Mi"
-              cpu: "250m"
+              memory: "128Mi"  # Minimum memory the container needs
+              cpu: "250m"      # Minimum CPU the container needs (250 millicores = 0.25 CPU)
+          # Health check to determine if container is alive
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30  # Wait 30 seconds before first check
+            periodSeconds: 10        # Check every 10 seconds
+          # Health check to determine if container is ready to serve traffic
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5   # Wait 5 seconds before first check
+            periodSeconds: 10        # Check every 10 seconds
+
 ---
+# Service configuration to expose the backend deployment
 apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
 spec:
+  # LoadBalancer type makes the service externally accessible
   type: LoadBalancer
+  # Select pods with label 'app: backend'
   selector:
     app: backend
   ports:
     - protocol: TCP
-      port: 5000
-      targetPort: 5000
-      nodePort: 30100
-  
+      port: 5000          # Port the service exposes
+      targetPort: 5000    # Port on the pod to forward to
+      nodePort: 30100     # Port exposed on the node (must be between 30000-32767)

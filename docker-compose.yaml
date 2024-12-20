@@ -1,38 +1,40 @@
-#This is to make the container and run the service on ubuntu
-
-#This file builds the Docker images for a React/NodeJS application and runs it as microservices on Docker containers
-
-#To ensure successful execution, clone this entire repository and execute this file while in the root folder of the cloned repository
-
-#It's also a requirement to have Docker and the docker-compose plugin installed in your environment
-
-#To launch this app without having to clone the entire repository,use the docker-compose.yaml file to run the app
-
+# Docker Compose configuration file version
 version: "3.8"
 
 services:
-
-  #Builds the frontend Docker image and creates the frontend microservice
-  brian-yolo-client:
+  # Frontend service configuration
+  kevin-yolo-client:
+    # Docker image name and tag
     image: kevin98x/kevin-yolo-client:v1.0.0
+    # Build context directory
     build: ./client
+    # Container name for easier identification
     container_name: kevin-yolo-client
+    # Keep STDIN open for interactive processes
     stdin_open: true
+    # Allocate a pseudo-TTY
     tty: true
+    # Port mapping (host:container)
     ports:
       - "3000:3000"
+    # Service dependencies
     depends_on: 
       - kevin-yolo-backend
+    # Network configuration
     networks:
       - app-net
+    # Environment variables for the frontend
+    environment:
+      - REACT_APP_API_URL=http://kevin-yolo-backend:5000
 
-  #Builds the backend Docker image and creates the backend microservice
-  brian-yolo-backend:
+  # Backend service configuration
+  kevin-yolo-backend:
     image: kevin98x/kevin-yolo-backend:v1.0.0
     build: ./backend
     container_name: kevin-yolo-backend
     stdin_open: true
     tty: true
+    # Restart policy for container
     restart: always
     ports:
       - "5000:5000"
@@ -40,32 +42,40 @@ services:
       - app-ip-mongo
     networks:
       - app-net
+    # Environment variables for the backend
+    environment:
+      - MONGO_URL=mongodb://app-ip-mongo:27017/mydatabase
+      - NODE_ENV=production
 
-  #Creates the database microservice
+  # MongoDB service configuration
   app-ip-mongo:
-    image: mongo
+    # Using official MongoDB image
+    image: mongo:latest
     container_name: app-mongo
     ports:
       - "27017:27017"
     networks:
       - app-net
+    # Volume configuration for data persistence
     volumes:
       - type: volume
         source: app-mongo-data
         target: /data/db
+    # MongoDB specific environment variables
+    environment:
+      - MONGO_INITDB_DATABASE=mydatabase
 
-#Creates the network infrastructure necessary for the containers to communicate with each other
+# Network configuration
 networks:
   app-net:
     name: app-net
+    # Using bridge driver for container communication
     driver: bridge
+    # Allow manual container attachment to this network
     attachable: true
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16 
-          ip_range: 172.20.0.0/16 
 
-#Creates a Docker volume that persists all the data stored in the database
+# Volume configuration for persistent data
 volumes:
   app-mongo-data:
+    # Using local driver for storage
     driver: local
