@@ -5,6 +5,8 @@ This project involved the containerization and deployment of a full-stack yolo a
 # Requirements
 Install the docker engine here:
 - [Docker](https://docs.docker.com/engine/install/) 
+What will also be needed is 
+- vagrant
 
 ## How to launch the application 
 

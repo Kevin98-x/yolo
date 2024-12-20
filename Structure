@@ -1,18 +1,34 @@
 ansible-playbook/
+├── inventory.yml                   # Add inventory file here
+├── group_vars/                     # Group variables
+│   └── all.yml                    # Variables for all groups
 ├── roles/
 │   ├── setup-mongodb/
 │   │   ├── tasks/
+│   │   │   └── main.yml
+│   │   ├── defaults/              # Add default variables
+│   │   │   └── main.yml
+│   │   ├── handlers/             # Add handlers for services
 │   │   │   └── main.yml
 │   │   └── vars/
 │   │       └── main.yml
 │   ├── backend-deployment/
 │   │   ├── tasks/
 │   │   │   └── main.yml
+│   │   ├── defaults/
+│   │   │   └── main.yml
+│   │   ├── handlers/
+│   │   │   └── main.yml
 │   │   └── vars/
 │   │       └── main.yml
 │   └── frontend-deployment/
 │       ├── tasks/
 │       │   └── main.yml
+│       ├── defaults/
+│       │   └── main.yml
+│       ├── handlers/
+│       │   └── main.yml
 │       └── vars/
 │           └── main.yml
-└── playbook.yml
+├── playbook.yml
+└── README.md                      # Add documentation
