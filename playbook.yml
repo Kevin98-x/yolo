@@ -2,8 +2,106 @@
 - name: Ansible playbook to dockerize and run yolo e-commerce app using ansible
   hosts: all
   become: true
-  roles: 
-    - frontend-deployment
-    - setup-mongodb   
+  vars_files:
+    - group_vars/all.yml
+
+  pre_tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      tags: always
+
+    - name: Install required system packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - python3-pip
+        - virtualenv
+        - python3-setuptools
+      tags: always
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      tags: docker
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+      tags: docker
+
+    - name: Install Docker
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      loop:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+      tags: docker
+
+    - name: Install Docker Python package
+      pip:
+        name: docker
+        state: present
+      tags: docker
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      tags: docker
+
+    - name: Create Docker network
+      docker_network:
+        name: ecommerce_network
+        state: present
+      tags: docker
+
+  roles:
+    - setup-mongodb
     - backend-deployment
-    
+    - frontend-deployment
+
+  post_tasks:
+    - name: Wait for frontend to be available
+      uri:
+        url: "http://localhost:3000"
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 60
+      delay: 1
+      tags: verify
+
+    - name: Verify MongoDB connection
+      wait_for:
+        host: localhost
+        port: 27017
+        timeout: 60
+      tags: verify
+
+    - name: Verify backend API
+      uri:
+        url: "http://localhost:5000/health"
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 60
+      delay: 1
+      tags: verify
+
+    - name: Print success message
+      debug:
+        msg: "E-commerce application has been successfully deployed!"
+      tags: verify
