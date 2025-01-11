@@ -1,3 +1,4 @@
+---
 all:
   hosts:
     myserver:
@@ -5,3 +6,16 @@ all:
       ansible_port: 2222
       ansible_user: vagrant
       ansible_private_key_file: .vagrant/machines/default/virtualbox/private_key
+      ansible_python_interpreter: /usr/bin/python3
+      ansible_become: true
+      ansible_connection: ssh
+      # Docker configuration
+      docker_users:
+        - vagrant
+  vars:
+    # Network configuration
+    docker_network_name: ecommerce_network
+    # Application ports
+    frontend_port: 3000
+    backend_port: 5000
+    mongodb_port: 27017
