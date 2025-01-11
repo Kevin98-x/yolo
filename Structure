@@ -1,22 +1,22 @@
 ansible-playbook/
 ├── Vagrantfile                    # Add this for VM provisioning
-├── inventory.yml                  
-├── group_vars/                    
+├── inventory.yml                 # the inventory file 
+├── group_vars/                    # the group variables                
 │   └── all.yml                    
 ├── roles/
-│   ├── docker/                    # Add this role
+│   ├── docker/                    # Added docker roles
 │   │   ├── tasks/
 │   │   │   └── main.yml
 │   │   ├── defaults/              
 │   │   │   └── main.yml
 │   │   └── handlers/             
 │   │       └── main.yml
-│   ├── setup-mongodb/
+│   ├── setup-mongodb/              
 │   │   ├── tasks/
 │   │   │   └── main.yml
-│   │   ├── defaults/              
+│   │   ├── defaults/              # default variables
 │   │   │   └── main.yml
-│   │   ├── handlers/             
+│   │   ├── handlers/         # added handlers for services         
 │   │   │   └── main.yml
 │   │   └── vars/
 │   │       └── main.yml
