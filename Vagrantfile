@@ -72,4 +72,21 @@ Vagrant.configure("2") do |config|
   # Network configuration
   config.vm.network "private_network", ip: "192.168.33.10"
 
-  
+  # Port forwarding
+  config.vm.network "forwarded_port", guest: 3000, host: 3000  # Frontend
+  config.vm.network "forwarded_port", guest: 5000, host: 5000  # Backend
+  config.vm.network "forwarded_port", guest: 27017, host: 27017  # MongoDB
+
+  # Disable automatic key insertion
+  config.ssh.insert_key = false
+
+  # Provisioning configuration for Ansible
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "playbook.yml"
+    ansible.compatibility_mode = "2.0"
+    ansible.become = true
+    ansible.extra_vars = {
+      ansible_python_interpreter: "/usr/bin/python3"
+    }
+  end
+end
