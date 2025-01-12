@@ -38,7 +38,7 @@ git clone <repository-url>
 cd <project-directory>
 ```
 
-2. Start the Vagrant VM and provision with Ansible:
+2. Start the Vagrant Virtual Machine and provision with Ansible:
 ```bash
 vagrant up --provision
 ```
