@@ -132,3 +132,128 @@ This setup makes our application:
 - Scalable (can add more containers easily)
 - Maintainable (each part is separate but connected)
 - Reliable (data persists between restarts)
+
+
+# Additional Infrastructure Implementation
+
+## Ansible and Vagrant Integration
+
+### Role Structure and Organization
+This deployment now includes Ansible automation with the following structure:
+```
+ansible-playbook/
+├── inventory.yml                   # Inventory configuration
+├── group_vars/                     # Group variables
+│   └── all.yml                    # Variables for all groups
+├── roles/
+│   ├── setup-mongodb/
+│   │   ├── tasks/
+│   │   │   └── main.yml
+│   │   ├── defaults/              
+│   │   │   └── main.yml
+│   │   ├── handlers/             
+│   │   │   └── main.yml
+│   │   └── vars/
+│   │       └── main.yml
+│   ├── backend-deployment/
+│   │   └── [similar structure]
+│   └── frontend-deployment/
+│       └── [similar structure]
+├── playbook.yml
+└── ansible.cfg
+```
+
+### Virtual Machine Configuration
+Enhanced Vagrant setup includes:
+```ruby
+config.vm.provider "virtualbox" do |vb|
+  vb.memory = "2048"
+  vb.cpus = 2
+end
+
+# Port forwarding
+config.vm.network "forwarded_port", guest: 3000, host: 3000  # Frontend
+config.vm.network "forwarded_port", guest: 5000, host: 5000  # Backend
+config.vm.network "forwarded_port", guest: 27017, host: 27017  # MongoDB
+```
+
+### Ansible Playbook Implementation
+The playbook executes in the following order:
+1. Pre-tasks:
+   - System updates
+   - Docker installation
+   - Network setup
+2. Role execution:
+   - MongoDB setup
+   - Backend deployment
+   - Frontend deployment
+3. Post-tasks:
+   - Health checks
+   - Service verification
+
+### Additional Configuration Files
+
+#### Inventory Configuration
+```yaml
+all:
+  hosts:
+    myserver:
+      ansible_host: 127.0.0.1
+      ansible_port: 2222
+      ansible_user: vagrant
+      ansible_private_key_file: .vagrant/machines/default/virtualbox/private_key
+      ansible_python_interpreter: /usr/bin/python3
+```
+
+#### Ansible Configuration
+```ini
+[defaults]
+inventory = hosts
+remote_user = vagrant
+private_key_file = .vagrant/machines/default/virtualbox/private_key
+host_key_checking = False
+roles_path = roles
+retry_files_enabled = False
+interpreter_python = auto_silent
+```
+
+### Alternative Deployment Method
+In addition to the Docker Compose method described above, you can now deploy using Ansible:
+
+1. Start the environment:
+```bash
+vagrant up
+```
+
+2. Run the Ansible playbook:
+```bash
+ansible-playbook playbook.yml
+```
+
+3. Verify deployment:
+```bash
+curl http://localhost:3000  # Check frontend
+curl http://localhost:5000  # Check backend API
+```
+
+### Additional Debugging Tips
+
+For Ansible-specific issues:
+- Check playbook syntax: `ansible-playbook --syntax-check playbook.yml`
+- Run with verbosity: `ansible-playbook -vv playbook.yml`
+- Check specific roles: `ansible-playbook playbook.yml --tags "frontend"`
+
+### Enhanced Security Features
+The Ansible implementation adds:
+- Automated Docker security configuration
+- Consistent environment setup
+- SSH key-based authentication
+- Proper permission management
+- Network isolation between services
+
+This additional infrastructure layer provides:
+- Fully automated deployment
+- Consistent development environments
+- Better security practices
+- Simplified debugging
+- Enhanced monitoring capabilities
