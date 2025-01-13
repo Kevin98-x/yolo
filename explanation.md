@@ -133,7 +133,6 @@ This setup makes our application:
 - Maintainable (each part is separate but connected)
 - Reliable (data persists between restarts)
 
-
 # Additional Infrastructure Implementation
 
 ## Ansible and Vagrant Integration
@@ -257,3 +256,44 @@ This additional infrastructure layer provides:
 - Better security practices
 - Simplified debugging
 - Enhanced monitoring capabilities
+
+# Order of Execution and Reasoning in Playbook
+
+The order of execution in the playbook ensures that dependencies are correctly established before deploying services. Each role has specific functions, as explained below:
+
+### 1. Pre-tasks
+Pre-tasks prepare the system for deployment:
+- **System updates**: Uses the `apt` module to update and upgrade the system packages.
+- **Docker installation**: Ensures Docker is installed using the `community.docker.docker_image` module.
+- **Network setup**: Configures network settings using the `ansible.builtin.command` module to create isolated environments for the services.
+
+### 2. Roles Execution
+#### a) `setup-mongodb`
+This role sets up the MongoDB database:
+- **Tasks**:
+  - Install MongoDB Docker container.
+  - Create persistent volumes using `community.docker.docker_volume`.
+  - Verify the MongoDB service using `command` module.
+- **Positioning**: Runs first because it provides the backend's data layer.
+
+#### b) `backend-deployment`
+This role deploys the backend service:
+- **Tasks**:
+  - Build and start the backend container using `community.docker.docker_container`.
+  - Set environment variables for production.
+- **Positioning**: Runs after MongoDB since the backend requires a database connection.
+
+#### c) `frontend-deployment`
+This role deploys the React frontend:
+- **Tasks**:
+  - Build and start the frontend container.
+  - Configure network routing to connect with the backend.
+- **Positioning**: Runs last as it depends on both the backend and MongoDB.
+
+### 3. Post-tasks
+Post-tasks verify that the deployment succeeded:
+- **Health checks**: Use the `uri` module to test service endpoints.
+- **Service verification**: Restart services if needed using the `service` module.
+
+This sequential order ensures the proper flow and functionality of the application while leveraging Ansible’s modular and automated features.
+
